@@ -1,8 +1,5 @@
 import { createContext, useCallback, useEffect, useState } from 'react';
-import api from '../utils/api';
-import fb from '../utils/fb';
 import ec2Api from '../utils/ec2Api';
-
 export const AuthContext = createContext({
   isLogin: false,
   user: {},
@@ -33,21 +30,6 @@ export const AuthContextProvider = ({ children }) => {
     setIsLogin(true);
     return tokenFromServer;
   }, []);
-
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      await fb.init();
-      const response = await fb.getLoginStatus();
-      if (response.status === 'connected') {
-        handleLoginResponse(response);
-        setLoading(false);
-      } else {
-        window.localStorage.removeItem('jwtToken');
-        setLoading(false);
-      }
-    };
-    checkAuthStatus();
-  }, [handleLoginResponse]);
 
   const login = async () => {
     setLoading(true);
