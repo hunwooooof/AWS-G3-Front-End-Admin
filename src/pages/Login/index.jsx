@@ -2,22 +2,21 @@ import { useContext, useState } from 'react';
 import ReactLoading from 'react-loading';
 import styled from 'styled-components';
 import { AuthContext } from '../../context/authContext';
-import facebookImgUrl from './FacebookLogo.png';
-import sImgUrl from './s-logo.png';
 
 const Wrapper = styled.div`
-  padding: 60px 20px;
+  padding: 80px 100px 0px 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
 `;
 
 const Title = styled.div`
-  padding-bottom: 16px;
-  border-bottom: 1px solid #979797;
   font-size: 24px;
   font-weight: bold;
+  text-align: center;
+  padding-bottom: 20px;
+  margin-bottom: 50px;
+  border-bottom: 1px solid #979797;
 `;
 
 const Photo = styled.img`
@@ -25,18 +24,16 @@ const Photo = styled.img`
 `;
 
 const Content = styled.div`
-  margin-top: 24px;
+  margin-top: 30px;
+  font-size: 20px;
+  text-align: center;
 `;
 
 const LogoutButton = styled.button`
-  margin-top: 24px;
-`;
-
-const Text = styled.div`
-  letter-spacing: 2px;
+  padding: 5px 20px;
   font-size: 20px;
-  color: #3f3a3aa6;
-  margin: 50px 0;
+  margin-top: 50px;
+  cursor: pointer;
 `;
 
 const LogIn = styled.div`
@@ -85,9 +82,8 @@ const Loading = styled(ReactLoading)`
   margin-top: 50px;
 `;
 
-function Profile() {
-  const { user, isLogin, login, nativeLogin, logout, loading } = useContext(AuthContext);
-  const [isNativeShow, setIsNativeLoginShow] = useState(false);
+function Login() {
+  const { user, isLogin, nativeLogin, logout, loading } = useContext(AuthContext);
   const [loginInfo, setLoginInfo] = useState({
     provider: 'native',
     email: '12345@123.com',
@@ -99,6 +95,7 @@ function Profile() {
     if (isLogin)
       return (
         <>
+          <Title>Admin</Title>
           <Photo src={user.picture} />
           <Content>{user.name}</Content>
           <Content>{user.email}</Content>
@@ -107,62 +104,42 @@ function Profile() {
       );
     return (
       <>
-        <Text>選擇登入方式</Text>
+        <Title>Admin 登入</Title>
         <LogIn>
-          <Btn onClick={login}>
-            <img src={facebookImgUrl} width={50} alt='facebook-logo' />
-          </Btn>
-          <Btn
-            onClick={() => {
-              setIsNativeLoginShow(!isNativeShow);
-            }}>
-            <img src={sImgUrl} width={50} alt='stylish-s-logo' />
-          </Btn>
+          <Label>Email</Label>
+          <Input
+            value={loginInfo.email}
+            type='email'
+            name='email'
+            onChange={(e) => {
+              setLoginInfo({ ...loginInfo, email: e.target.value });
+            }}
+          />
         </LogIn>
-        {isNativeShow && (
-          <>
-            <LogIn>
-              <Label>Email</Label>
-              <Input
-                value={loginInfo.email}
-                type='email'
-                name='email'
-                onChange={(e) => {
-                  setLoginInfo({ ...loginInfo, email: e.target.value });
-                }}
-              />
-            </LogIn>
-            <LogIn>
-              <Label>Password</Label>
-              <Input
-                value={loginInfo.password}
-                type='text'
-                name='password'
-                onChange={(e) => {
-                  setLoginInfo({ ...loginInfo, password: e.target.value });
-                }}
-              />
-            </LogIn>
-            <LogIn>
-              <NativeBtn
-                type='submit'
-                onClick={() => {
-                  nativeLogin(loginInfo);
-                }}>
-                登入
-              </NativeBtn>
-            </LogIn>
-          </>
-        )}
+        <LogIn>
+          <Label>Password</Label>
+          <Input
+            value={loginInfo.password}
+            type='text'
+            name='password'
+            onChange={(e) => {
+              setLoginInfo({ ...loginInfo, password: e.target.value });
+            }}
+          />
+        </LogIn>
+        <LogIn>
+          <NativeBtn
+            type='submit'
+            onClick={() => {
+              nativeLogin(loginInfo);
+            }}>
+            登入
+          </NativeBtn>
+        </LogIn>
       </>
     );
   };
-  return (
-    <Wrapper>
-      <Title>會員基本資訊</Title>
-      {renderContent()}
-    </Wrapper>
-  );
+  return <Wrapper>{renderContent()}</Wrapper>;
 }
 
-export default Profile;
+export default Login;

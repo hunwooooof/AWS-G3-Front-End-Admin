@@ -5,7 +5,7 @@ import freeFreightImage from './free-freight-fee.webp';
 
 const Wrapper = styled.div`
   height: 100%;
-  padding: 80px 200px 0px 550px;
+  padding: 80px 100px 0px 500px;
 `;
 
 const Navigation = styled.div`
@@ -13,15 +13,16 @@ const Navigation = styled.div`
   gap: 60px;
   font-size: 30px;
   border-bottom: 1px solid #bbb;
-  padding-bottom: 10px;
+  padding-bottom: 20px;
 `;
 
 const NavItem = styled.div`
   padding: 10px;
   border-radius: 8px;
+  background-color: ${(props) => (props.$isActive ? '#dbdbdb' : 'white')};
   &:hover {
     cursor: pointer;
-    background-color: #dbdbdb;
+    background-color: #ededed;
   }
 `;
 
@@ -121,6 +122,7 @@ const fields = [
 ];
 
 function Coupon() {
+  const [management, setManagement] = useState('addNew');
   const [newCoupon, setNewCoupon] = useState({
     type: '折扣',
     title: '',
@@ -130,50 +132,75 @@ function Coupon() {
     amount: 0,
   });
 
+  const handleChangeManagement = (e) => {
+    setManagement(e.target.id);
+  };
+
   const handleChangeInput = (e) => {
     const id = e.target.id;
     newCoupon[id] = e.target.value;
     setNewCoupon({ ...newCoupon });
   };
 
+  const renderContent = () => {
+    if (management === 'addNew') {
+      return (
+        <>
+          <Fields>
+            {fields.map((field) => (
+              <Field key={field.id}>
+                <Label>{field.name}</Label>
+                <Input
+                  type={field.type}
+                  id={field.id}
+                  value={newCoupon[field.id]}
+                  placeholder={field?.placeholder}
+                  onChange={handleChangeInput}
+                />
+              </Field>
+            ))}
+            <Field>
+              <Label>折扣類型</Label>
+              <Radio id='type' type='radio' name='type' value='折扣' onChange={handleChangeInput} />
+              折扣
+              <Radio id='type' type='radio' name='type' value='免運' onChange={handleChangeInput} />
+              免運
+            </Field>
+          </Fields>
+          <Preview>預覽畫面</Preview>
+          <Item>
+            <Img src={newCoupon.type === '折扣' ? discountImage : freeFreightImage} />
+            <ItemDetail>
+              <ItemInfo>
+                <ItemInfoName>{newCoupon.title}</ItemInfoName>
+                <GetButton>領取</GetButton>
+              </ItemInfo>
+              <ExpireDate>有效期限：{newCoupon.expiry_date}</ExpireDate>
+            </ItemDetail>
+          </Item>
+        </>
+      );
+    }
+    if (management === 'checkAll') {
+      return (
+        <>
+          <div>查看目前活動中的優惠券剩餘數量</div>
+        </>
+      );
+    }
+  };
+
   return (
     <Wrapper>
       <Navigation>
-        <NavItem>新增優惠券</NavItem>
-        <NavItem>查看所有優惠券</NavItem>
+        <NavItem id='addNew' onClick={handleChangeManagement} $isActive={management === 'addNew'}>
+          新增優惠券
+        </NavItem>
+        <NavItem id='checkAll' onClick={handleChangeManagement} $isActive={management === 'checkAll'}>
+          優惠券剩餘數量
+        </NavItem>
       </Navigation>
-      <Fields>
-        {fields.map((field) => (
-          <Field key={field.id}>
-            <Label>{field.name}</Label>
-            <Input
-              type={field.type}
-              id={field.id}
-              value={newCoupon[field.id]}
-              placeholder={field?.placeholder}
-              onChange={handleChangeInput}
-            />
-          </Field>
-        ))}
-        <Field>
-          <Label>折扣類型</Label>
-          <Radio id='type' type='radio' name='type' value='折扣' onChange={handleChangeInput} />
-          折扣
-          <Radio id='type' type='radio' name='type' value='免運' onChange={handleChangeInput} />
-          免運
-        </Field>
-      </Fields>
-      <Preview>預覽畫面</Preview>
-      <Item>
-        <Img src={newCoupon.type === '折扣' ? discountImage : freeFreightImage} />
-        <ItemDetail>
-          <ItemInfo>
-            <ItemInfoName>{newCoupon.title}</ItemInfoName>
-            <GetButton>領取</GetButton>
-          </ItemInfo>
-          <ExpireDate>有效期限：{newCoupon.expiry_date}</ExpireDate>
-        </ItemDetail>
-      </Item>
+      {renderContent()}
     </Wrapper>
   );
 }

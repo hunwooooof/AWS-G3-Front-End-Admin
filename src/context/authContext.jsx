@@ -13,7 +13,7 @@ export const AuthContext = createContext({
 export const AuthContextProvider = ({ children }) => {
   const [isLogin, setIsLogin] = useState(false);
   const [user, setUser] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [jwtToken, setJwtToken] = useState();
 
   const handleLoginResponse = useCallback(async (response) => {
