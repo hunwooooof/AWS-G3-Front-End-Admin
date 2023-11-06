@@ -42,7 +42,7 @@ const Description = styled.div`
 // =============
 
 const Fields = styled.div`
-  padding: 40px 0 40px 40px;
+  padding: 10px 0 40px 40px;
 `;
 
 const Field = styled.div`
@@ -89,7 +89,11 @@ const Preview = styled.div`
 const Submit = styled.button`
   cursor: pointer;
   font-size: 20px;
-  margin-left: 450px;
+  margin-top: 20px;
+  margin-left: 200px;
+  &:disabled {
+    cursor: not-allowed;
+  }
 `;
 
 const Item = styled.div`
@@ -110,7 +114,7 @@ const ItemDetail = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 20px;
+  padding: 30px;
 `;
 
 const ItemInfo = styled.div`
@@ -135,7 +139,7 @@ const GetButton = styled.button`
 `;
 
 const ExpireDate = styled.div`
-  font-size: 18px;
+  font-size: 20px;
   color: #504d4d;
 `;
 
@@ -162,6 +166,10 @@ const Th = styled.th`
   font-size: 24px;
   background-color: #dbeeff;
   border-bottom: 1px solid black;
+`;
+
+const Tr = styled.tr`
+  color: ${(props) => (props.$isZero ? '#c0c0c0' : 'black')};
 `;
 
 const Delete = styled.div`
@@ -207,19 +215,27 @@ function Coupon() {
   };
 
   const handleClickSubmit = () => {
-    const discountNum = Number(newCoupon.discount);
-    const amountNum = Number(newCoupon.amount);
-    const body = { ...newCoupon, discount: discountNum, amount: amountNum };
-    async function addMarketingCoupon() {
-      const response = await ec2Api.addMarketingCoupon(body, jwtToken);
-      console.log(response.message);
-      if (response.success) {
-        setNewCoupon(initialNewCoupon);
+    const start_date = new Date(newCoupon.start_date);
+    const expiry_date = new Date(newCoupon.expiry_date);
+
+    if (start_date < expiry_date) {
+      const userConfirmed = window.confirm('確定新增優惠券？');
+      if (userConfirmed) {
+        const discountNum = newCoupon.type === '折扣' ? Number(newCoupon.discount) : 0;
+        const amountNum = Number(newCoupon.amount);
+        const body = { ...newCoupon, discount: discountNum, amount: amountNum };
+        console.log(body);
+        async function addMarketingCoupon() {
+          const response = await ec2Api.addMarketingCoupon(body, jwtToken);
+          console.log(response.message);
+          if (response.success) {
+            setNewCoupon(initialNewCoupon);
+          }
+        }
+        addMarketingCoupon();
       }
-    }
-    const userConfirmed = window.confirm('確定新增優惠券？');
-    if (userConfirmed) {
-      addMarketingCoupon();
+    } else {
+      alert('截止日期早於開始日期');
     }
   };
 
@@ -245,27 +261,17 @@ function Coupon() {
       }
     }
     if (isLogin) getAllCoupons();
-  }, [couponsDetail]);
+  }, [management, couponsDetail]);
 
   const renderContent = () => {
     if (management === 'addNew') {
       if (isLogin) {
         return (
           <>
-            <Description>目前設定優惠券折扣 {newCoupon.discount}% off</Description>
+            <Description>
+              目前設定優惠券折扣為 —— {newCoupon.type === '折扣' ? `${newCoupon.discount}% off` : '免運'}
+            </Description>
             <Fields>
-              {fields.map((field) => (
-                <Field key={field.id}>
-                  <Label>{field.name}</Label>
-                  <Input
-                    type={field.type}
-                    id={field.id}
-                    value={newCoupon[field.id]}
-                    placeholder={field?.placeholder}
-                    onChange={handleChangeInput}
-                  />
-                </Field>
-              ))}
               <Field>
                 <Label>折扣類型</Label>
                 <Radio id='type' type='radio' name='type' value='折扣' onChange={handleChangeInput} defaultChecked />
@@ -273,7 +279,26 @@ function Coupon() {
                 <Radio id='type' type='radio' name='type' value='免運' onChange={handleChangeInput} />
                 免運
               </Field>
-              <Submit onClick={handleClickSubmit}>設定優惠券</Submit>
+              {fields.map((field) => {
+                if (field.id === 'discount' && newCoupon.type === '免運') return;
+                return (
+                  <Field key={field.id}>
+                    <Label>{field.name}</Label>
+                    <Input
+                      type={field.type}
+                      id={field.id}
+                      value={newCoupon[field.id]}
+                      placeholder={field?.placeholder}
+                      onChange={handleChangeInput}
+                    />
+                  </Field>
+                );
+              })}
+              <Submit
+                onClick={handleClickSubmit}
+                disabled={(newCoupon.title, newCoupon.start_date, newCoupon.expiry_date) === ''}>
+                設定優惠券
+              </Submit>
             </Fields>
             <Preview>預覽畫面</Preview>
             <Item>
@@ -307,15 +332,15 @@ function Coupon() {
               </thead>
               <tbody>
                 {couponsDetail.map((coupon) => (
-                  <tr key={coupon.id}>
+                  <Tr key={coupon.id} $isZero={coupon.amount === 0}>
                     <Td>{coupon.title}</Td>
                     <Td>{coupon.amount}</Td>
                     <Td>
                       <Delete id={coupon.id} onClick={handleClickDelete}>
-                        ❌
+                        {coupon.amount > 0 ? '❌' : '-'}
                       </Delete>
                     </Td>
-                  </tr>
+                  </Tr>
                 ))}
               </tbody>
             </Table>
