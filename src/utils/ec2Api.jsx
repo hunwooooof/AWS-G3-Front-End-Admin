@@ -31,17 +31,18 @@ const ec2Api = {
     });
     return await response.json();
   },
-  // async deleteCollection(id, jwtToken) {
-  //   const response = await fetch(`${this.hostname}/api/v1/collection`, {
-  //     headers: new Headers({
-  //       'Content-Type': 'application/json',
-  //       Authorization: `Bearer ${jwtToken}`,
-  //     }),
-  //     body: JSON.stringify({ productId: id, method: 'delete' }),
-  //        method: 'POST',
-  //   });
-  //   return await response.json();
-  // },
+
+  async deleteCollection(id, jwtToken) {
+    const response = await fetch(`${this.hostname}/api/marketing/coupons`, {
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${jwtToken}`,
+      }),
+      body: JSON.stringify({ id: id }),
+      method: 'DELETE',
+    });
+    return await response.json();
+  },
 };
 
 export default ec2Api;

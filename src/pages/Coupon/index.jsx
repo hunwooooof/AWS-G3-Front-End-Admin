@@ -7,7 +7,7 @@ import ec2Api from '../../utils/ec2Api';
 
 const Wrapper = styled.div`
   height: 100%;
-  padding: 80px 100px 0px 500px;
+  padding: 40px 100px 0px 500px;
 `;
 
 const Navigation = styled.div`
@@ -164,6 +164,15 @@ const Th = styled.th`
   border-bottom: 1px solid black;
 `;
 
+const Delete = styled.div`
+  cursor: pointer;
+  border: none;
+  background-color: white;
+  &:hover {
+    background-color: #e6e6e6;
+  }
+`;
+
 const fields = [
   { name: '活動名稱', type: 'text', id: 'title', placeholder: '雙11狂歡' },
   { name: '發放數量', type: 'number', id: 'amount' },
@@ -182,7 +191,7 @@ const initialNewCoupon = {
 };
 
 function Coupon() {
-  const { isLogin, nativeLogin, logout, loading, jwtToken } = useContext(AuthContext);
+  const { isLogin, jwtToken } = useContext(AuthContext);
   const [management, setManagement] = useState('addNew');
   const [newCoupon, setNewCoupon] = useState(initialNewCoupon);
   const [couponsDetail, setCouponsDetail] = useState('');
@@ -208,7 +217,24 @@ function Coupon() {
         setNewCoupon(initialNewCoupon);
       }
     }
-    addMarketingCoupon();
+    const userConfirmed = window.confirm('確定新增優惠券？');
+    if (userConfirmed) {
+      addMarketingCoupon();
+    }
+  };
+
+  const handleClickDelete = (e) => {
+    const userConfirmed = window.confirm('刪除後優惠券將歸零，確定要繼續嗎？');
+    if (userConfirmed) {
+      async function deleteCollection() {
+        const response = await ec2Api.deleteCollection(e.target.id, jwtToken);
+        if (response) {
+          console.log(response);
+          // message: "已成功將優惠券數量更改為零", success: true
+        }
+      }
+      deleteCollection();
+    }
   };
 
   useEffect(() => {
@@ -219,7 +245,7 @@ function Coupon() {
       }
     }
     if (isLogin) getAllCoupons();
-  }, []);
+  }, [couponsDetail]);
 
   const renderContent = () => {
     if (management === 'addNew') {
@@ -276,6 +302,7 @@ function Coupon() {
                 <tr>
                   <Th>優惠券名稱</Th>
                   <Th>剩餘數量</Th>
+                  <Th>刪除優惠券</Th>
                 </tr>
               </thead>
               <tbody>
@@ -283,6 +310,11 @@ function Coupon() {
                   <tr key={coupon.id}>
                     <Td>{coupon.title}</Td>
                     <Td>{coupon.amount}</Td>
+                    <Td>
+                      <Delete id={coupon.id} onClick={handleClickDelete}>
+                        ❌
+                      </Delete>
+                    </Td>
                   </tr>
                 ))}
               </tbody>
