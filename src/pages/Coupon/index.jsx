@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import discountImage from './discount.webp';
 import freeFreightImage from './free-freight-fee.webp';
+import { AuthContext } from '../../context/authContext';
+import ec2Api from '../../utils/ec2Api';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -26,6 +28,19 @@ const NavItem = styled.div`
   }
 `;
 
+const Description = styled.div`
+  background-color: aliceblue;
+  font-size: 20px;
+  padding: 30px;
+  border-radius: 10px;
+  margin: 30px 0;
+  letter-spacing: 1.2px;
+`;
+
+// =============
+//   優惠券名稱
+// =============
+
 const Fields = styled.div`
   padding: 40px 0 40px 40px;
 `;
@@ -49,6 +64,8 @@ const Input = styled.input`
   height: 40px;
   padding: 0 5px;
   font-size: 20px;
+  border-radius: 8px;
+  border: 1px solid #6f6f6f;
 `;
 
 const Radio = styled.input`
@@ -113,8 +130,33 @@ const ExpireDate = styled.div`
   color: #504d4d;
 `;
 
+// =============
+//   剩餘數量
+// =============
+
+const Table = styled.table`
+  border: 1px solid #6f6f6f;
+  width: 650px;
+  margin: 0 auto;
+  margin-top: 50px;
+  font-size: 20px;
+  text-align: center;
+`;
+
+const Td = styled.td`
+  padding: 10px;
+  border: 1px solid black;
+`;
+
+const Th = styled.th`
+  padding: 20px;
+  font-size: 24px;
+  background-color: #dbeeff;
+  border-bottom: 1px solid black;
+`;
+
 const fields = [
-  { name: '活動名稱', type: 'text', id: 'title', placeholder: '顯示於官網作為優惠券名稱' },
+  { name: '活動名稱', type: 'text', id: 'title', placeholder: '雙11狂歡' },
   { name: '發放數量', type: 'number', id: 'amount' },
   { name: '折扣數', type: 'number', id: 'discount' },
   { name: '開始日期', type: 'date', id: 'start_date' },
@@ -122,6 +164,7 @@ const fields = [
 ];
 
 function Coupon() {
+  const { isLogin, nativeLogin, logout, loading, jwtToken } = useContext(AuthContext);
   const [management, setManagement] = useState('addNew');
   const [newCoupon, setNewCoupon] = useState({
     type: '折扣',
@@ -131,6 +174,7 @@ function Coupon() {
     expiry_date: '',
     amount: 0,
   });
+  const [couponsDetail, setCouponsDetail] = useState('');
 
   const handleChangeManagement = (e) => {
     setManagement(e.target.id);
@@ -142,51 +186,86 @@ function Coupon() {
     setNewCoupon({ ...newCoupon });
   };
 
+  useEffect(() => {
+    async function getAllCoupons() {
+      const { data } = await ec2Api.getAllCoupons(jwtToken);
+      if (data) {
+        setCouponsDetail(data);
+      }
+    }
+    if (isLogin) getAllCoupons();
+  }, []);
+
   const renderContent = () => {
     if (management === 'addNew') {
-      return (
-        <>
-          <Fields>
-            {fields.map((field) => (
-              <Field key={field.id}>
-                <Label>{field.name}</Label>
-                <Input
-                  type={field.type}
-                  id={field.id}
-                  value={newCoupon[field.id]}
-                  placeholder={field?.placeholder}
-                  onChange={handleChangeInput}
-                />
+      if (isLogin) {
+        return (
+          <>
+            <Description>目前設定優惠券折扣 {newCoupon.discount}% off</Description>
+            <Fields>
+              {fields.map((field) => (
+                <Field key={field.id}>
+                  <Label>{field.name}</Label>
+                  <Input
+                    type={field.type}
+                    id={field.id}
+                    value={newCoupon[field.id]}
+                    placeholder={field?.placeholder}
+                    onChange={handleChangeInput}
+                  />
+                </Field>
+              ))}
+              <Field>
+                <Label>折扣類型</Label>
+                <Radio id='type' type='radio' name='type' value='折扣' onChange={handleChangeInput} />
+                折扣
+                <Radio id='type' type='radio' name='type' value='免運' onChange={handleChangeInput} />
+                免運
               </Field>
-            ))}
-            <Field>
-              <Label>折扣類型</Label>
-              <Radio id='type' type='radio' name='type' value='折扣' onChange={handleChangeInput} />
-              折扣
-              <Radio id='type' type='radio' name='type' value='免運' onChange={handleChangeInput} />
-              免運
-            </Field>
-          </Fields>
-          <Preview>預覽畫面</Preview>
-          <Item>
-            <Img src={newCoupon.type === '折扣' ? discountImage : freeFreightImage} />
-            <ItemDetail>
-              <ItemInfo>
-                <ItemInfoName>{newCoupon.title}</ItemInfoName>
-                <GetButton>領取</GetButton>
-              </ItemInfo>
-              <ExpireDate>有效期限：{newCoupon.expiry_date}</ExpireDate>
-            </ItemDetail>
-          </Item>
-        </>
-      );
+            </Fields>
+            <Preview>預覽畫面</Preview>
+            <Item>
+              <Img src={newCoupon.type === '折扣' ? discountImage : freeFreightImage} />
+              <ItemDetail>
+                <ItemInfo>
+                  <ItemInfoName>{newCoupon.title}</ItemInfoName>
+                  <GetButton>領取</GetButton>
+                </ItemInfo>
+                <ExpireDate>有效期限：{newCoupon.expiry_date}</ExpireDate>
+              </ItemDetail>
+            </Item>
+          </>
+        );
+      } else {
+        return <Description>請先登入admin</Description>;
+      }
     }
     if (management === 'checkAll') {
-      return (
-        <>
-          <div>查看目前活動中的優惠券剩餘數量</div>
-        </>
-      );
+      if (isLogin) {
+        return (
+          <>
+            <Description>查看目前活動中的優惠券剩餘數量</Description>
+            <Table>
+              <thead>
+                <tr>
+                  <Th>優惠券名稱</Th>
+                  <Th>剩餘數量</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {couponsDetail.map((coupon) => (
+                  <tr key={coupon.id}>
+                    <Td>{coupon.title}</Td>
+                    <Td>{coupon.amount}</Td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </>
+        );
+      } else {
+        return <Description>請先登入admin</Description>;
+      }
     }
   };
 

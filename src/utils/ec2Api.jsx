@@ -10,7 +10,7 @@ const ec2Api = {
     });
     return await response.json();
   },
-  async getAllCoupons() {
+  async getAllCoupons(jwtToken) {
     const response = await fetch(`${this.hostname}/api/marketing/coupons`, {
       headers: new Headers({
         'Content-Type': 'application/json',
