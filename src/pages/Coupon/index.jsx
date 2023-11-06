@@ -66,6 +66,9 @@ const Input = styled.input`
   font-size: 20px;
   border-radius: 8px;
   border: 1px solid #6f6f6f;
+  &::placeholder {
+    color: #c6c6c6;
+  }
 `;
 
 const Radio = styled.input`
@@ -81,6 +84,12 @@ const Preview = styled.div`
   margin: 20px 0;
   padding: 20px;
   border-bottom: 1px solid #bbb;
+`;
+
+const Submit = styled.button`
+  cursor: pointer;
+  font-size: 20px;
+  margin-left: 450px;
 `;
 
 const Item = styled.div`
@@ -163,17 +172,19 @@ const fields = [
   { name: '截止日期', type: 'date', id: 'expiry_date' },
 ];
 
+const initialNewCoupon = {
+  type: '折扣',
+  title: '',
+  discount: 0,
+  start_date: '',
+  expiry_date: '',
+  amount: 0,
+};
+
 function Coupon() {
   const { isLogin, nativeLogin, logout, loading, jwtToken } = useContext(AuthContext);
   const [management, setManagement] = useState('addNew');
-  const [newCoupon, setNewCoupon] = useState({
-    type: '折扣',
-    title: '',
-    discount: 0,
-    start_date: '',
-    expiry_date: '',
-    amount: 0,
-  });
+  const [newCoupon, setNewCoupon] = useState(initialNewCoupon);
   const [couponsDetail, setCouponsDetail] = useState('');
 
   const handleChangeManagement = (e) => {
@@ -184,6 +195,20 @@ function Coupon() {
     const id = e.target.id;
     newCoupon[id] = e.target.value;
     setNewCoupon({ ...newCoupon });
+  };
+
+  const handleClickSubmit = () => {
+    const discountNum = Number(newCoupon.discount);
+    const amountNum = Number(newCoupon.amount);
+    const body = { ...newCoupon, discount: discountNum, amount: amountNum };
+    async function addMarketingCoupon() {
+      const response = await ec2Api.addMarketingCoupon(body, jwtToken);
+      console.log(response.message);
+      if (response.success) {
+        setNewCoupon(initialNewCoupon);
+      }
+    }
+    addMarketingCoupon();
   };
 
   useEffect(() => {
@@ -217,11 +242,12 @@ function Coupon() {
               ))}
               <Field>
                 <Label>折扣類型</Label>
-                <Radio id='type' type='radio' name='type' value='折扣' onChange={handleChangeInput} />
+                <Radio id='type' type='radio' name='type' value='折扣' onChange={handleChangeInput} defaultChecked />
                 折扣
                 <Radio id='type' type='radio' name='type' value='免運' onChange={handleChangeInput} />
                 免運
               </Field>
+              <Submit onClick={handleClickSubmit}>設定優惠券</Submit>
             </Fields>
             <Preview>預覽畫面</Preview>
             <Item>

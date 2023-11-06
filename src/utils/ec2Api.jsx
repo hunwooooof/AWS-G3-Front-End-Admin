@@ -1,5 +1,5 @@
 const ec2Api = {
-  hostname: 'http://35.72.177.254:3000',
+  hostname: 'https://ygolonhcet.online',
   async signin(data) {
     const response = await fetch(`${this.hostname}/api/user/signin`, {
       body: JSON.stringify(data),
@@ -20,17 +20,17 @@ const ec2Api = {
     return await response.json();
   },
 
-  // async addCollection(id, jwtToken) {
-  //   const response = await fetch(`${this.hostname}/api/v1/collection`, {
-  //     headers: new Headers({
-  //       'Content-Type': 'application/json',
-  //       Authorization: `Bearer ${jwtToken}`,
-  //     }),
-  //     body: JSON.stringify({ productId: id, method: 'create' }),
-  //     method: 'POST',
-  //   });
-  //   return await response.json();
-  // },
+  async addMarketingCoupon(data, jwtToken) {
+    const response = await fetch(`${this.hostname}/api/marketing/coupons`, {
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${jwtToken}`,
+      }),
+      body: JSON.stringify(data),
+      method: 'POST',
+    });
+    return await response.json();
+  },
   // async deleteCollection(id, jwtToken) {
   //   const response = await fetch(`${this.hostname}/api/v1/collection`, {
   //     headers: new Headers({
