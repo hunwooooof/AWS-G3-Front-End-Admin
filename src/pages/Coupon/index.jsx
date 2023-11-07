@@ -177,7 +177,7 @@ const Delete = styled.div`
   border: none;
   background-color: white;
   &:hover {
-    background-color: #e6e6e6;
+    text-shadow: 0 0 10px #808080;
   }
 `;
 
@@ -336,9 +336,13 @@ function Coupon() {
                     <Td>{coupon.title}</Td>
                     <Td>{coupon.amount}</Td>
                     <Td>
-                      <Delete id={coupon.id} onClick={handleClickDelete}>
-                        {coupon.amount > 0 ? '❌' : '-'}
-                      </Delete>
+                      {coupon.amount > 0 ? (
+                        <Delete id={coupon.id} onClick={handleClickDelete}>
+                          ❌
+                        </Delete>
+                      ) : (
+                        '-'
+                      )}
                     </Td>
                   </Tr>
                 ))}
