@@ -149,7 +149,7 @@ const ExpireDate = styled.div`
 
 const Table = styled.table`
   border: 1px solid #6f6f6f;
-  width: 650px;
+  width: 800px;
   margin: 0 auto;
   margin-top: 50px;
   font-size: 20px;
@@ -256,7 +256,7 @@ function Coupon() {
   useEffect(() => {
     async function getAllCoupons() {
       const { data } = await ec2Api.getAllCoupons(jwtToken);
-      if (data) {
+      if (data && data !== couponsDetail) {
         setCouponsDetail(data);
       }
     }
@@ -321,27 +321,35 @@ function Coupon() {
       if (isLogin) {
         return (
           <>
-            <Description>查看目前活動中的優惠券剩餘數量</Description>
+            <Description>查看目前活動中的優惠券剩餘數量與截止日期</Description>
             <Table>
               <thead>
                 <tr>
                   <Th>優惠券名稱</Th>
                   <Th>剩餘數量</Th>
+                  <Th>截止日期</Th>
                   <Th>刪除優惠券</Th>
                 </tr>
               </thead>
               <tbody>
-                {couponsDetail.map((coupon) => (
-                  <Tr key={coupon.id} $isZero={coupon.amount === 0}>
-                    <Td>{coupon.title}</Td>
-                    <Td>{coupon.amount}</Td>
-                    <Td>
-                      <Delete id={coupon.id} onClick={handleClickDelete}>
-                        {coupon.amount > 0 ? '❌' : '-'}
-                      </Delete>
-                    </Td>
-                  </Tr>
-                ))}
+                {couponsDetail.map((coupon) => {
+                  const today = new Date();
+                  const expiry_date = new Date(coupon.expiry_date);
+                  if (today < expiry_date) {
+                    return (
+                      <Tr key={coupon.id} $isZero={coupon.amount === 0}>
+                        <Td>{coupon.title}</Td>
+                        <Td>{coupon.amount}</Td>
+                        <Td>{coupon.expiry_date.slice(0, 10)}</Td>
+                        <Td>
+                          <Delete id={coupon.id} onClick={handleClickDelete}>
+                            {coupon.amount > 0 ? '❌' : '-'}
+                          </Delete>
+                        </Td>
+                      </Tr>
+                    );
+                  }
+                })}
               </tbody>
             </Table>
           </>
