@@ -177,7 +177,7 @@ const Delete = styled.div`
   border: none;
   background-color: white;
   &:hover {
-    background-color: #e6e6e6;
+    text-shadow: 0 0 10px #808080;
   }
 `;
 
@@ -337,19 +337,24 @@ function Coupon() {
                   const expiry_date = new Date(coupon.expiry_date);
                   if (today < expiry_date) {
                     return (
-                      <Tr key={coupon.id} $isZero={coupon.amount === 0}>
-                        <Td>{coupon.title}</Td>
-                        <Td>{coupon.amount}</Td>
-                        <Td>{coupon.expiry_date.slice(0, 10)}</Td>
-                        <Td>
-                          <Delete id={coupon.id} onClick={handleClickDelete}>
-                            {coupon.amount > 0 ? '❌' : '-'}
-                          </Delete>
-                        </Td>
-                      </Tr>
+                  <Tr key={coupon.id} $isZero={coupon.amount === 0}>
+                    <Td>{coupon.title}</Td>
+                    <Td>{coupon.amount}</Td>
+                     <Td>{coupon.expiry_date.slice(0, 10)}</Td>
+                    <Td>
+                      {coupon.amount > 0 ? (
+                        <Delete id={coupon.id} onClick={handleClickDelete}>
+                          ❌
+                        </Delete>
+                      ) : (
+                        '-'
+                      )}
+                    </Td>
+                  </Tr>
                     );
                   }
-                })}
+                ))}
+
               </tbody>
             </Table>
           </>
