@@ -4,6 +4,7 @@ import discountImage from './discount.webp';
 import freeFreightImage from './free-freight-fee.webp';
 import { AuthContext } from '../../context/authContext';
 import ec2Api from '../../utils/ec2Api';
+import toast, { Toaster } from 'react-hot-toast';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -227,15 +228,15 @@ function Coupon() {
         console.log(body);
         async function addMarketingCoupon() {
           const response = await ec2Api.addMarketingCoupon(body, jwtToken);
-          console.log(response.message);
           if (response.success) {
+            toast.success(response.message);
             setNewCoupon(initialNewCoupon);
           }
         }
         addMarketingCoupon();
       }
     } else {
-      alert('截止日期早於開始日期');
+      toast.error('截止日期早於開始日期');
     }
   };
 
@@ -246,7 +247,7 @@ function Coupon() {
         const response = await ec2Api.deleteCollection(e.target.id, jwtToken);
         if (response) {
           console.log(response);
-          // message: "已成功將優惠券數量更改為零", success: true
+          toast.success(response.message);
         }
       }
       deleteCollection();
@@ -376,6 +377,15 @@ function Coupon() {
         </NavItem>
       </Navigation>
       {renderContent()}
+      <Toaster
+        position='top-right'
+        toastOptions={{
+          style: {
+            fontSize: '26px',
+            backgroundColor: '#dbdbdbc2',
+          },
+        }}
+      />
     </Wrapper>
   );
 }
