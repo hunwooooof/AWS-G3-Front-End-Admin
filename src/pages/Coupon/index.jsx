@@ -8,13 +8,13 @@ import toast, { Toaster } from 'react-hot-toast';
 
 const Wrapper = styled.div`
   height: 100%;
-  padding: 40px 100px 0px 500px;
+  padding: 10px 100px 0px 400px;
 `;
 
 const Navigation = styled.div`
   display: flex;
-  gap: 60px;
-  font-size: 30px;
+  gap: 26px;
+  font-size: 26px;
   border-bottom: 1px solid #bbb;
   padding-bottom: 20px;
 `;
@@ -248,6 +248,13 @@ function Coupon() {
         if (response) {
           console.log(response);
           toast.success(response.message);
+          async function getAllCoupons() {
+            const { data } = await ec2Api.getAllCoupons(jwtToken);
+            if (data && data !== couponsDetail) {
+              setCouponsDetail(data);
+            }
+          }
+          getAllCoupons();
         }
       }
       deleteCollection();
@@ -262,7 +269,7 @@ function Coupon() {
       }
     }
     if (isLogin) getAllCoupons();
-  }, [management, couponsDetail]);
+  }, [management]);
 
   const renderContent = () => {
     if (management === 'addNew') {

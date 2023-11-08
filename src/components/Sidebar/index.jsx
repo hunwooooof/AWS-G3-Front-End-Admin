@@ -6,13 +6,13 @@ const Wrapper = styled.div`
   top: 0;
   left: 0;
   height: 100%;
-  width: 350px;
-  padding: 100px 40px;
+  width: 270px;
+  padding: 100px 20px;
   z-index: 99;
   background-color: #313538;
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 20px;
 `;
 
 const Menu = styled(Link)`
@@ -22,6 +22,11 @@ const Menu = styled(Link)`
   gap: 20px;
   color: white;
   text-decoration: none;
+  padding: 8px 10px;
+  border-radius: 8px;
+  &:hover {
+    background-color: #575757;
+  }
 `;
 
 const Icon = styled.span`
@@ -29,18 +34,16 @@ const Icon = styled.span`
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 `;
 
-const Title = styled.div``;
-
 function Sidebar() {
   return (
     <Wrapper>
       <Menu to='/'>
         <Icon>home</Icon>
-        <Title>首頁</Title>
+        <div>首頁</div>
       </Menu>
       <Menu to='coupon'>
         <Icon>confirmation_number</Icon>
-        <Title>優惠券管理</Title>
+        <div>優惠券管理</div>
       </Menu>
     </Wrapper>
   );

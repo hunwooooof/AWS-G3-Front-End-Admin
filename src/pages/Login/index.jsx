@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { AuthContext } from '../../context/authContext';
 
 const Wrapper = styled.div`
-  padding: 80px 100px 0px 500px;
+  padding: 80px 100px 0px 400px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -21,6 +21,10 @@ const Title = styled.div`
 
 const Photo = styled.img`
   margin-top: 24px;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 50%;
 `;
 
 const Content = styled.div`
