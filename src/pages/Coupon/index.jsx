@@ -118,6 +118,18 @@ const ItemDetail = styled.div`
   padding: 30px;
 `;
 
+const Discount = styled.div`
+  color: #bc6946;
+  letter-spacing: 2px;
+  font-size: 18px;
+  margin-top: 10px;
+  margin-bottom: auto;
+  @media screen and (max-width: 479px) {
+    font-size: 12px;
+    margin-top: 5px;
+  }
+`;
+
 const ItemInfo = styled.div`
   display: flex;
   justify-content: space-between;
@@ -316,6 +328,7 @@ function Coupon() {
                   <ItemInfoName>{newCoupon.title}</ItemInfoName>
                   <GetButton>領取</GetButton>
                 </ItemInfo>
+                <Discount>{newCoupon.type === '折扣' ? newCoupon.discount + '% off' : '免運'}</Discount>
                 <ExpireDate>有效期限：{newCoupon.expiry_date}</ExpireDate>
               </ItemDetail>
             </Item>
